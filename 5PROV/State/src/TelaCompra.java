@@ -37,7 +37,11 @@ public class TelaCompra extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Double valorPago = Double.parseDouble(JOptionPane.showInputDialog("Informe o valor de pagamento: "));
-				TelaCompra.this.compra.setStatusCompra("Pagamento Aprovado");
+				try {
+					compra.efetuarPagamento(valorPago);
+				} catch (StatusInvalidoException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage());
+				}
 				exibirStatusCompra();
 			}
 		});
@@ -48,7 +52,11 @@ public class TelaCompra extends JFrame {
 		btReceberCompra.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCompra.this.compra.setStatusCompra("Compra Entregue");
+				try {
+					compra.receberCompra();
+				} catch (StatusInvalidoException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage());
+				}
 				exibirStatusCompra();
 			}
 		});
@@ -59,13 +67,17 @@ public class TelaCompra extends JFrame {
 		btDevolverCompra.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				TelaCompra.this.compra.setStatusCompra("Compra Devolvida");
+				try {
+					compra.devolverCompra();
+				} catch (StatusInvalidoException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage());
+				}
 				exibirStatusCompra();
 			}
 		});
 		this.add(btDevolverCompra);
 
-		this.lbStatusCompra = new JLabel("Status da Compra: " + this.compra.getStatusCompra());
+		this.lbStatusCompra = new JLabel("Status da Compra: " + this.compra.getStatusAtual().getNome());
 		this.lbStatusCompra.setFont(new Font("Serif", Font.BOLD, 25));
 		this.lbStatusCompra.setBounds(20, 150, 500, 100);
 		this.add(lbStatusCompra);
@@ -74,7 +86,7 @@ public class TelaCompra extends JFrame {
 	}
 	
 	public void exibirStatusCompra() {
-		lbStatusCompra.setText("Status da Compra: " + this.compra.getStatusCompra());
+		lbStatusCompra.setText("Status da Compra: " + this.compra.getStatusAtual().getNome());
 	}
 	
 }
