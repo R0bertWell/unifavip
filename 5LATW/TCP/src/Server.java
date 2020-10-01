@@ -23,13 +23,13 @@ public class Server extends JFrame {
 	private Socket connection;
 	private int counter = 1;
 	
-	public Server() {
+	public Server() {	
 		super("Server");
 		
 		enterField = new JTextField();
 		enterField.setEditable(false);
 		enterField.addActionListener((e) -> {
-			displayMessage(e.getActionCommand());
+			sendData(e.getActionCommand());
 			enterField.setText("");
 		});
 		add(enterField, BorderLayout.NORTH);
@@ -49,9 +49,9 @@ public class Server extends JFrame {
 					waitForConnection();
 					getStreams();
 					processConnection();
-				}catch(EOFException eofException) {
+				} catch(EOFException eofException) {
 					displayMessage("\nServer terminated connection");
-				}catch(IOException ioException) {
+				} finally {
 					closeConnection();
 					++counter;
 				}

@@ -31,7 +31,7 @@ public class Client extends JFrame {
 		enterField = new JTextField();
 		enterField.setEditable(false);
 		enterField.addActionListener((e) -> {
-			displayMessage(e.getActionCommand());
+			sendData(e.getActionCommand());
 			enterField.setText("");
 		});
 		add(enterField, BorderLayout.NORTH);
@@ -41,6 +41,46 @@ public class Client extends JFrame {
 		
 		setSize(300, 150);
 		setVisible(true);
+	}
+	
+	public void runClient() {
+		try {
+			connectToServer();
+			getStreams();
+			processConnection();
+		} catch (UnknownHostException e) {
+			displayMessage("\nClient terminated connection");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			closeConnection();
+		}
+
+	}
+	
+	private void connectToServer() throws UnknownHostException, IOException {
+		displayMessage("Attempting connection\n");
+		client = new Socket(InetAddress.getByName(charServer), 12345);
+		displayMessage("Connected to: " + client.getInetAddress().getHostName());
+	}
+	
+	private void getStreams() throws IOException {
+		output = new ObjectOutputStream(client.getOutputStream());
+		output.flush();
+		input = new ObjectInputStream(client.getInputStream());
+		displayMessage("\nGOT I/O streams\n");
+	}
+	
+	private void processConnection() throws IOException {
+		setTextFieldEditable(true);
+		do {
+			try {
+				message = (String) input.readObject();
+				displayMessage("\n" + message);
+			}catch(ClassNotFoundException classNotFoundException) {
+				displayMessage("\nUnkown object type received");
+			}
+		}while(!message.equals("SERVER>>> TERMINATE"));
 	}
 	
 	private void displayMessage(final String messageToDisplay) {
@@ -55,13 +95,34 @@ public class Client extends JFrame {
 		});
 	}
 	
-	public static void main(String[] args) {
-		Client application;
-		if(args.length == 0) {
-			application = new Client("127.0.0.1");
-		}else {
-			application = new Client(args[0]);
+	private void sendData(String message) {
+		try {
+			if(output != null) {
+				output.writeObject("CLIENT>>> " + message);
+				output.flush();
+				displayMessage("\nCLIENT>>> " + message);
+			}
+		}catch(IOException ioException) {
+			ioException.printStackTrace();
+			displayArea.append("\nError writing object");
 		}
+	}
+	
+	private void closeConnection() {
+		displayMessage("\nClosing connection\n");
+		setTextFieldEditable(false);
+		try {
+			output.close();
+			input.close();
+			client.close();
+		}catch(IOException ioException) {
+			ioException.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args) {
+		Client application = new Client("127.0.0.1");
 		application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		application.runClient();
 	}
 }
