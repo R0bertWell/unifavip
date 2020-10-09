@@ -41,6 +41,7 @@ public class Client extends JFrame {
 		
 		setSize(300, 150);
 		setVisible(true);
+		displayArea.setEditable(false); // Pequeno capricho em não deixar escrever no Text Area
 	}
 	
 	public void runClient() {
