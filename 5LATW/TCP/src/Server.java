@@ -39,6 +39,7 @@ public class Server extends JFrame {
 		
 		setSize(300, 150);
 		setVisible(true);
+		displayArea.setEditable(false); // Aqui a mesma coisa do capricho de não deixar escrever no displayArea
 	}
 	
 	public void runServer() {
